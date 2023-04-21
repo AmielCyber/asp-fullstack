@@ -5,7 +5,7 @@ namespace API.Data
     {
         public static void Initialize(StoreContext context)
         {
-            if(context.Products.Any()) return;
+            if (context.Products.Any()) return;
 
             var products = new List<Product>
             {
@@ -208,7 +208,7 @@ namespace API.Data
             };
             foreach (var product in products)
             {
-               context.Products.Add(product); 
+                context.Products.Add(product);
             }
             context.SaveChanges();
         }

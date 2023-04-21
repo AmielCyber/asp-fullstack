@@ -14,10 +14,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Add DbContext 
-builder.Services.AddDbContext<StoreContext>(opt => {
+builder.Services.AddDbContext<StoreContext>(opt =>
+{
     // Specify options from our configuration.
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddCors();
 
 // Build application and store the result in app.
 var app = builder.Build();
@@ -36,6 +38,13 @@ if (app.Environment.IsDevelopment())
 // Redirects HTTP to HTTPS
 // app.UseHttpsRedirection();
 
+// Use cors configuration.
+app.UseCors(opt =>
+{
+    // Allow all headers, any controller method.
+    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5173");
+});
+
 app.UseAuthorization();
 
 // Where to send requests:
@@ -53,7 +62,7 @@ try
     context.Database.Migrate();
     DbInitializer.Initialize(context);
 }
-catch(Exception e)
+catch (Exception e)
 {
     logger.LogError(e, "A problem occurred during migration.");
 }
