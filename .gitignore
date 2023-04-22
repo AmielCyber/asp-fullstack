@@ -3,3 +3,4 @@ backend-store/API/appsettings.json
 backend-store/.vscode/launch.json
 backend-store/.vscode/tasks.json
 client-store/src/assets/react.svg
+.DS_Store

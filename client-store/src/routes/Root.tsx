@@ -1,15 +1,15 @@
-import { useState } from "react";
 import {
-  Container,
-  CssBaseline,
-  ThemeProvider,
   createTheme,
+  ThemeProvider,
+  CssBaseline,
+  Container,
 } from "@mui/material";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 // My imports.
-import Header from "./Header";
-import Catalog from "../features/catalog/Catalog";
+import Header from "../layout/Header";
 
-export default function App() {
+export default function Root() {
   const [darkMode, setDarkMode] = useState(false);
 
   const paletteType = darkMode ? "dark" : "light";
@@ -28,7 +28,7 @@ export default function App() {
       <CssBaseline />
       <Header darkMode={darkMode} onThemeChange={handleThemeChange} />
       <Container>
-        <Catalog />
+        <Outlet />
       </Container>
     </ThemeProvider>
   );
