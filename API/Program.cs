@@ -45,8 +45,8 @@ if (app.Environment.IsDevelopment())
 // Use cors configuration.
 app.UseCors(opt =>
 {
-    // Allow all headers, any controller method.
-    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5173");
+    // Allow all headers, any controller method. Allow client to pass cookies with allow credentions.
+    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:5173");
 });
 
 app.UseAuthorization();

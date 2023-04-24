@@ -14,7 +14,8 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        // Give this route the name
+        [HttpGet(Name = "GetBasket")]
         public async Task<ActionResult<CartDto>> GetCart()
         {
             // Cart will be stored in a cookie
@@ -24,28 +25,13 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-            return new CartDto
-            {
-                Id = cart.Id,
-                BuyerId = cart.BuyerId,
-                Items = cart.Items.Select(item => new CartItemDto
-                {
-                    ProductId = item.ProductId,
-                    Name = item.Product.Name,
-                    Price = item.Product.Price,
-                    PictureUrl = item.Product.PictureUrl,
-                    Type = item.Product.Type,
-                    Brand = item.Product.Brand,
-                    Quantity = item.Quantity,
-
-                }).ToList()
-            };
+            return MapCartToDto(cart);
         }
 
 
         // Query string must match the parameter name.
         [HttpPost]  // /api/carts?productId=3&quantity=2
-        public async Task<ActionResult> AddItemToCart(int productId, int quantity)
+        public async Task<ActionResult<CartDto>> AddItemToCart(int productId, int quantity)
         {
             // Get cart.
             var cart = await RetrieveCart();
@@ -68,7 +54,8 @@ namespace API.Controllers
             int result = await _context.SaveChangesAsync();
             if (result > 0)
             {
-                return StatusCode(201);
+                // Send a 201 code and the location of the url used to create in the header.
+                return CreatedAtRoute("GetBasket", MapCartToDto(cart));
             }
             return BadRequest(new ProblemDetails { Title = "Problem saving item to cart." });
         }
@@ -78,7 +65,7 @@ namespace API.Controllers
         {
             // Get Cart.
             Cart cart = await RetrieveCart();
-            if(cart == null)
+            if (cart == null)
             {
                 return NotFound();
             }
@@ -86,8 +73,9 @@ namespace API.Controllers
             cart.RemoveItem(productId, quantity);
             // Save Changes.
             int result = await _context.SaveChangesAsync();
-            if(result < 1){
-                return BadRequest(new ProblemDetails{Title = "Problem removing item from the cart."});
+            if (result < 1)
+            {
+                return BadRequest(new ProblemDetails { Title = "Problem removing item from the cart." });
             }
 
             return Ok();
@@ -114,5 +102,26 @@ namespace API.Controllers
             _context.Carts.Add(cart);
             return cart;
         }
+
+        private CartDto MapCartToDto(Cart cart)
+        {
+            return new CartDto
+            {
+                Id = cart.Id,
+                BuyerId = cart.BuyerId,
+                Items = cart.Items.Select(item => new CartItemDto
+                {
+                    ProductId = item.ProductId,
+                    Name = item.Product.Name,
+                    Price = item.Product.Price,
+                    PictureUrl = item.Product.PictureUrl,
+                    Type = item.Product.Type,
+                    Brand = item.Product.Brand,
+                    Quantity = item.Quantity,
+
+                }).ToList()
+            };
+        }
+
     }
 }
