@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import agent from "../../api/agent";
 // My import.
-import Product from "../../models/Product";
+import type Product from "../../models/Product";
+import Loading from "../../layout/Loading";
+import NotFound from "../../errors/NotFound";
 
 export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
@@ -20,18 +22,18 @@ export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5001/api/products/${id}`)
-      .then((response) => setProduct(response.data))
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
+    id &&
+      agent.Catalog.details(parseInt(id))
+        .then((response) => setProduct(response))
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
-    return <h3>Loading...</h3>;
+    return <Loading message="Loading product..." />;
   }
   if (!product) {
-    return <h3>Product not found</h3>;
+    return <NotFound />;
   }
 
   return (
