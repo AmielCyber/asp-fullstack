@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using API.Data;
+using API.Middleware;
 
 // Create a web application host.
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,9 @@ var app = builder.Build();
 
 // Middleware:
 // Ordering is important.
+
+// Our exception handler middleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 // Gives us opportunity to add middleware.
