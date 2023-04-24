@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // My imports.
-import type Product from "../../models/Product";
+import type Product from "../../models/product";
 import agent from "../../api/agent";
 import Loading from "../../layout/Loading";
 import ProductList from "./ProductList";

@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 // My imports.
-import type Product from "../../models/Product";
+import type Product from "../../models/product";
 import ProductCard from "./ProductCard";
 
 type Props = {

@@ -6,11 +6,14 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 // My imports.
+import { StoreProvider } from "./context/StoreContext.tsx";
 import router from "./router/Routes.tsx";
 import "./layout/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <StoreProvider>
+      <RouterProvider router={router} />
+    </StoreProvider>
   </StrictMode>
 );

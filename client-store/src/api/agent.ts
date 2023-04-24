@@ -1,17 +1,22 @@
 import type { AxiosError, AxiosResponse } from "axios";
 import axios from "axios";
 import { toast } from "react-toastify";
+// My import.
 import router from "../router/Routes";
 
 axios.defaults.baseURL = "http://localhost:5001/api/";
+// Have cookies.
+axios.defaults.withCredentials = true;
 
 const responseBody = (response: AxiosResponse) => response.data;
 
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
+// To Do: remove for production.
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 // On rejected area
 axios.interceptors.response.use(
   async (response) => {
+    // To Do: remove for production.
     await sleep();
     return response;
   },
@@ -51,6 +56,14 @@ const requests = {
   delete: (url: string) => axios.delete(url).then(responseBody),
 };
 
+const Cart = {
+  get: () => requests.get("cart"),
+  addItem: (productId: number, quantity = 1) =>
+    requests.post(`cart?productId=${productId}&quantity=${quantity}`, {}),
+  removeItem: (productId: number, quantity = 1) =>
+    requests.delete(`cart?productId=${productId}&quantity=${quantity}`),
+};
+
 const Catalog = {
   list: () => requests.get("products"),
   details: (id: number) => requests.get(`products/${id}`),
@@ -67,6 +80,7 @@ const TestErrors = {
 const agent = {
   Catalog,
   TestErrors,
+  Cart,
 };
 
 export default agent;
