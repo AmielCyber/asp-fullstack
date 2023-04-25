@@ -9,14 +9,15 @@ import { ToastContainer } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 // My imports.
-import Header from "../layout/Header";
-import { useStoreContext } from "../context/StoreContext";
 import getCookie from "../util/cookie";
+import { useAppDispatch } from "../store/configureStore";
 import agent from "../api/agent";
+import { setCart } from "../features/cart/cartSlice";
 import Loading from "../layout/Loading";
+import Header from "../layout/Header";
 
 export default function Root() {
-  const { setCart } = useStoreContext();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
@@ -24,13 +25,13 @@ export default function Root() {
     const buyerId = getCookie("buyerId");
     if (buyerId) {
       agent.Cart.get()
-        .then((cart) => setCart(cart))
+        .then((cart) => dispatch(setCart(cart)))
         .catch((e) => console.log(e))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [setCart]);
+  }, [dispatch]);
 
   const paletteType = darkMode ? "dark" : "light";
   const theme = createTheme({

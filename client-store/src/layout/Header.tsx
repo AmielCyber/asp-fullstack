@@ -12,7 +12,7 @@ import {
 import { ShoppingCart } from "@mui/icons-material";
 import { Link, NavLink } from "react-router-dom";
 // My import.
-import { useStoreContext } from "../context/StoreContext";
+import { useAppSelector } from "../store/configureStore";
 
 const midLinks = [
   { title: "catalog", path: "/catalog" },
@@ -43,7 +43,7 @@ type Props = {
 };
 
 export default function Header(props: Props) {
-  const { cart } = useStoreContext();
+  const { cart } = useAppSelector(state => state.cart);
   const itemCount = cart
     ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
     : 0;

@@ -1,22 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, } from "react";
 // My imports.
-import type Product from "../../models/product";
-import agent from "../../api/agent";
 import Loading from "../../layout/Loading";
 import ProductList from "./ProductList";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
+import { fetchProductsAsync, productSelectors } from "./catalogSlice";
 
 export default function Catalog() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const products = useAppSelector(productSelectors.selectAll);
+  const dispatch = useAppDispatch();
+  const {productsLoaded, status} = useAppSelector(state => state.catalog);
+
+  console.log(products)
 
   useEffect(() => {
-    agent.Catalog.list()
-      .then((products) => setProducts(products))
-      .catch((e) => console.log(e))
-      .finally(() => setLoading(false));
-  }, []);
+    if(!productsLoaded){
+      dispatch(fetchProductsAsync())
+    }
+  }, [productsLoaded,dispatch]);
 
-  if (loading) {
+  if (status.includes('pending')) {
     return <Loading message="Loading products..." />;
   }
 

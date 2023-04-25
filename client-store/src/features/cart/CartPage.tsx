@@ -11,40 +11,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { Add, Delete, Remove } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 // My imports.
-import { useStoreContext } from "../../context/StoreContext";
-import agent from "../../api/agent";
+import { useAppDispatch, useAppSelector } from "../../store/configureStore";
+import { addCartItemAsync, removeCartItemAsync, } from "./cartSlice";
 import CartSummary from "./CartSummary";
 
-const initialStatus = {
-  loading: false,
-  name: "",
-};
-
 export default function CartPage() {
-  const { cart, setCart, removeItem } = useStoreContext();
-  const [status, setStatus] = useState(initialStatus);
-
-  const handleAddItem = (productId: number, name: string) => {
-    setStatus({ loading: true, name });
-    agent.Cart.addItem(productId)
-      .then((cart) => setCart(cart))
-      .catch((e) => console.log(e))
-      .finally(() => setStatus(initialStatus));
-  };
-
-  const handleRemoveItem = (productId: number, quantity = 1, name: string) => {
-    setStatus({ loading: true, name });
-    agent.Cart.removeItem(productId, quantity)
-      .then((cart) => setCart(cart))
-      .then(() => removeItem(productId, quantity))
-      .catch((e) => console.log(e))
-      .finally(() => setStatus(initialStatus));
-  };
+  const { cart, status } = useAppSelector((state) => state.cart);
+  const dispatch = useAppDispatch();
 
   if (!cart) {
     return <Typography variant="h3">Your cart is empty</Typography>;
@@ -84,14 +61,10 @@ export default function CartPage() {
                 </TableCell>
                 <TableCell align="center">
                   <LoadingButton
-                    loading={
-                      status.loading && status.name === "rem" + item.productId
-                    }
+                    loading={status === "pendingRemoveItem" + item.productId + "rem"}
                     onClick={() =>
-                      handleRemoveItem(
-                        item.productId,
-                        1,
-                        "rem" + item.productId
+                      dispatch(
+                        removeCartItemAsync({ productId: item.productId, quantity: 1, name: 'rem' })
                       )
                     }
                     color="error"
@@ -100,11 +73,9 @@ export default function CartPage() {
                   </LoadingButton>
                   {item.quantity}
                   <LoadingButton
-                    loading={
-                      status.loading && status.name === "add" + item.productId
-                    }
+                    loading={status === "pendingAddItem" + item.productId}
                     onClick={() =>
-                      handleAddItem(item.productId, "add" + item.productId)
+                      dispatch(addCartItemAsync({ productId: item.productId }))
                     }
                     color="secondary"
                   >
@@ -116,14 +87,14 @@ export default function CartPage() {
                 </TableCell>
                 <TableCell align="right">
                   <LoadingButton
-                    loading={
-                      status.loading && status.name === "del" + item.productId
-                    }
+                    loading={status === "pendingRemoveItem" + item.productId + "del" }
                     onClick={() =>
-                      handleRemoveItem(
-                        item.productId,
-                        item.quantity,
-                        "del" + item.productId
+                      dispatch(
+                        removeCartItemAsync({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                          name: "del"
+                        })
                       )
                     }
                     color="error"
