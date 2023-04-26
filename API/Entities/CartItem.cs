@@ -15,7 +15,7 @@ namespace API.Entities
         // Entity framework convention, we need to state the relationship with id.
         public int ProductId { get; set; }
         public Product Product { get; set; }
-    
+
         // Data Transfer Objects (DTO). Creates objects that shape our data. Plain Objects
 
         public int CartId { get; set; }
