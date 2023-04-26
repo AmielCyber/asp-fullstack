@@ -1,5 +1,6 @@
 namespace API.RequestHelpers;
 
+// Header object information for pagination.
 public class MetaData
 {
     public int CurrentPage { get; set; }

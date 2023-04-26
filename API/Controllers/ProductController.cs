@@ -32,19 +32,22 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedList<Product>>> GetProducts([FromQuery] ProductParams productParams)
         {
-            // Get products from our database and turn it into a list.
+            // Set a query for products 
+            // IQueryable provides functionality to evaluate queries on our DB.
             var query = _context.Products
                 .Sort(productParams.OrderBy)
                 .Search(productParams.SearchTerm)
                 .Filter(productParams.Brands, productParams.Types)
-                .AsQueryable();
+                .AsQueryable(); // Convert IEnumerable into an IQueryable
 
+            // Call the DB with the the queries and set it as a list.
             var products =
                 await PagedList<Product>.ToPagedList(query, productParams.PageNumber, productParams.PageSize);
 
-            // Return a sorted list.
+            // Add the metadata we stored in the MetaData property in PagedList
             Response.AddPaginationHeader(products.MetaData);
 
+            // Return a list in order and filtered by the search params.
             return products;
         }
 
@@ -64,6 +67,7 @@ namespace API.Controllers
         [HttpGet("filters")]
         public async Task<ActionResult> GetFilters()
         {
+            // Get the distinct brands and types from our database.
             var brands = await _context.Products.Select(p => p.Brand).Distinct().ToListAsync();
             var types = await _context.Products.Select(p => p.Type).Distinct().ToListAsync();
 

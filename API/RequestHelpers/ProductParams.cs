@@ -1,5 +1,6 @@
 namespace API.RequestHelpers;
 
+// Param class for our GetProducts method from products controller. 
 public class ProductParams : PaginationParams
 {
     public string OrderBy { get; set; }
