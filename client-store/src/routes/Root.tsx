@@ -4,15 +4,14 @@ import {
   CssBaseline,
   Container,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { Outlet } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 // My imports.
-import getCookie from "../util/cookie";
 import { useAppDispatch } from "../store/configureStore";
-import agent from "../api/agent";
-import { setCart } from "../features/cart/cartSlice";
+import { fetchCurrentUser } from "../features/account/accountSlice";
+import { fetchCartAsync } from "../features/cart/cartSlice";
 import Loading from "../layout/Loading";
 import Header from "../layout/Header";
 
@@ -21,17 +20,18 @@ export default function Root() {
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    const buyerId = getCookie("buyerId");
-    if (buyerId) {
-      agent.Cart.get()
-        .then((cart) => dispatch(setCart(cart)))
-        .catch((e) => console.log(e))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+  const initApp = useCallback(async () => {
+    try {
+      await dispatch(fetchCurrentUser());
+      await dispatch(fetchCartAsync());
+    } catch (e) {
+      console.log(e);
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    initApp().then(() => setLoading(false));
+  }, [initApp]);
 
   const paletteType = darkMode ? "dark" : "light";
   const theme = createTheme({

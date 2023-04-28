@@ -1,6 +1,8 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
+// My imports.
 import type { Cart } from "../../models/cart";
 import agent from "../../api/agent";
+import getCookie from "../../util/cookie";
 
 interface CartState {
   cart: Cart | null;
@@ -11,6 +13,24 @@ const initialState: CartState = {
   cart: null,
   status: "idle",
 };
+
+export const fetchCartAsync = createAsyncThunk<Cart>(
+  "cart/fetchCartAsync",
+  async (_, thunkApi) => {
+    try {
+      return await agent.Cart.get();
+    } catch (e: any) {
+      return thunkApi.rejectWithValue({ error: e.data });
+    }
+  },
+  {
+    condition: () => {
+      if (!getCookie("buyerId")) {
+        return false;
+      }
+    },
+  }
+);
 
 export const addCartItemAsync = createAsyncThunk<
   Cart,
@@ -41,6 +61,9 @@ export const cartSlice = createSlice({
   reducers: {
     setCart: (state: CartState, action: any) => {
       state.cart = action.payload;
+    },
+    clearCart: (state) => {
+      state.cart = null;
     },
   },
   extraReducers: (builder) => {
@@ -79,7 +102,21 @@ export const cartSlice = createSlice({
       state.status = "idle";
       console.log(action.payload);
     });
+    builder.addMatcher(
+      isAnyOf(addCartItemAsync.fulfilled, fetchCartAsync.fulfilled),
+      (state, action) => {
+        state.cart = action.payload;
+        state.status = "idle";
+      }
+    );
+    builder.addMatcher(
+      isAnyOf(addCartItemAsync.rejected, fetchCartAsync.rejected),
+      (state, action) => {
+        state.status = "idle";
+        console.log(action.payload);
+      }
+    );
   },
 });
 
-export const { setCart } = cartSlice.actions;
+export const { setCart, clearCart } = cartSlice.actions;

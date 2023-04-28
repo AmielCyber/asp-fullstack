@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 
 # Ignore pictures for right now
-public/images/
+public/images/*.jpg
+public/images/*.png
+public/images/products/**

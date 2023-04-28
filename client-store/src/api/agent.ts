@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 // My imports.
 import { PaginatedResponse } from "../models/pagination";
 import router from "../router/Routes";
+import { store } from "../store/configureStore";
 
 axios.defaults.baseURL = "http://localhost:5001/api/";
 // Have cookies.
@@ -13,6 +14,14 @@ const responseBody = (response: AxiosResponse) => response.data;
 
 // To Do: remove for production.
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
+
+axios.interceptors.request.use((config) => {
+  const token = store.getState().account.user?.token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // On rejected area
 axios.interceptors.response.use(
@@ -44,7 +53,6 @@ axios.interceptors.response.use(
         toast.error(data.title);
         break;
       case 401:
-        toast.error(data.title);
         break;
       case 500:
         router.navigate("/server-error", { state: { error: data } });
@@ -87,10 +95,17 @@ const TestErrors = {
   getValidationError: () => requests.get("buggy/validation-error"),
 };
 
+const Account = {
+  login: (values: any) => requests.post("account/login", values),
+  register: (values: any) => requests.post("account/register", values),
+  currentUser: () => requests.get("account/currentUser"),
+};
+
 const agent = {
   Catalog,
   TestErrors,
   Cart,
+  Account,
 };
 
 export default agent;

@@ -1,6 +1,7 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 // My imports.
 import Root from "../routes/Root";
+import RequiredAuth from "./RequiredAuth";
 import HomePage from "../routes/home/HomePage";
 import Catalog from "../features/catalog/Catalog";
 import ProductDetails from "../features/catalog/ProductDetails";
@@ -10,12 +11,18 @@ import ServerError from "../errors/ServerError";
 import NotFound from "../errors/NotFound";
 import CartPage from "../features/cart/CartPage";
 import CheckoutPage from "../features/checkout/CheckoutPage";
+import Login from "../features/account/Login";
+import Register from "../features/account/Register";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
     children: [
+      {
+        element: <RequiredAuth />,
+        children: [{ path: "checkout", element: <CheckoutPage /> }],
+      },
       { path: "", element: <HomePage /> },
       { path: "catalog", element: <Catalog /> },
       { path: "catalog/:id", element: <ProductDetails /> },
@@ -24,7 +31,8 @@ const router = createBrowserRouter([
       { path: "server-error", element: <ServerError /> },
       { path: "not-found", element: <NotFound /> },
       { path: "cart", element: <CartPage /> },
-      { path: "checkout", element: <CheckoutPage /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
       { path: "*", element: <Navigate replace to="/not-found" /> },
     ],
   },
