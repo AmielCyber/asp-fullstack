@@ -4,3 +4,10 @@
 .vscode/tasks.json
 client-store/src/assets/react.svg
 .DS_Store
+.idea/
+
+API/Data/Migrations/20230426234114_IdentityAdded.cs
+API/Data/Migrations/20230426234114_IdentityAdded.Designer.cs
+API/identifier.sqlite
+API/store.db
+API/store.db

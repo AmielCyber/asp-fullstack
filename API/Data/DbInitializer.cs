@@ -1,13 +1,41 @@
 using API.Entities;
-namespace API.Data
-{
-    public static class DbInitializer
-    {
-        public static void Initialize(StoreContext context)
-        {
-            if (context.Products.Any()) return;
+using Microsoft.AspNetCore.Identity;
 
-            var products = new List<Product>
+namespace API.Data;
+public static class DbInitializer
+{
+    public static async Task Initialize(StoreContext context, UserManager<User> userManager)
+    {
+        // Seed some users.
+        if (!userManager.Users.Any())
+        {
+            var user = new User
+            {
+                UserName = "bob",
+                Email = "bob@test.com"
+            };
+            // Create a specified user with password
+            // And save the changes in the DB
+            await userManager.CreateAsync(user, "Pa$$w0rd");
+            // Give the new user the role of member.
+            await userManager.AddToRoleAsync(user, "Member");
+
+            var admin = new User
+            {
+                UserName = "admin",
+                Email = "admin@test.com"
+            };
+            // Create a specified user with password
+            // And save the changes in the DB
+            await userManager.CreateAsync(admin, "Pa$$w0rd");
+            // Give the new user the role of admin.
+            await userManager.AddToRolesAsync(admin, new[] { "Member", "Admin" });
+
+        }
+
+        if (context.Products.Any()) return;
+
+        var products = new List<Product>
             {
                 new Product
                 {
@@ -206,11 +234,10 @@ namespace API.Data
                     QuantityInStock = 100
                 },
             };
-            foreach (var product in products)
-            {
-                context.Products.Add(product);
-            }
-            context.SaveChanges();
+        foreach (var product in products)
+        {
+            context.Products.Add(product);
         }
+        context.SaveChanges();
     }
 }

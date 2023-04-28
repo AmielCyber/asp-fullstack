@@ -1,6 +1,13 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using API.Data;
+using API.Entities;
 using API.Middleware;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 // Create a web application host.
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +20,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Adding swagger dependencies for swagger content.
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(opt =>
+{
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        BearerFormat = "JWT",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Description = "Put Bearer + your token in the box below",
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+    opt.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            jwtSecurityScheme, Array.Empty<string>()
+        }
+    });
+});
 // Add DbContext 
 builder.Services.AddDbContext<StoreContext>(opt =>
 {
@@ -21,6 +51,33 @@ builder.Services.AddDbContext<StoreContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
+// Identity Roles.
+builder.Services.AddIdentityCore<User>(opt =>
+// Set options for Users
+    {
+        opt.User.RequireUniqueEmail = true;
+    })
+    // Add roles
+    .AddRoles<IdentityRole>()
+    // Add Entity Framework implementation of identity information stores.
+    .AddEntityFrameworkStores<StoreContext>();
+// Add authentication configuration.
+// Add JWT Bearer service
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opt =>
+    {
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,    // Check the lifetime of the token.
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey =
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:TokenKey"]))
+        };
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<TokenService>();
 
 // Build application and store the result in app.
 var app = builder.Build();
@@ -36,7 +93,10 @@ app.UseMiddleware<ExceptionMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(config =>
+    {
+        config.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
+    });
 }
 
 // Redirects HTTP to HTTPS
@@ -49,6 +109,7 @@ app.UseCors(opt =>
     opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:5173");
 });
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Where to send requests:
@@ -58,13 +119,15 @@ app.MapControllers();
 var scope = app.Services.CreateScope();
 // Get hold of store context service
 var context = scope.ServiceProvider.GetRequiredService<StoreContext>();
+// Get hold of user manager.
+var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 // Get hold of logger
 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 try
 {
     // Append any database migrations if needed.
-    context.Database.Migrate();
-    DbInitializer.Initialize(context);
+    await context.Database.MigrateAsync();
+    await DbInitializer.Initialize(context, userManager);
 }
 catch (Exception e)
 {
