@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using API.Entities;
 using API.Extensions;
 using API.Services;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -72,9 +73,11 @@ public class AccountController : BaseApiController
         var user = new User { UserName = registerDto.UserName, Email = registerDto.Email };
 
         // Save results from our user manager that will check if email is unique, password is valid, and other options
+        // If succeeded the user will be saved in our database.
         // stated in Program.cs
         var result = await _userManager.CreateAsync(user, registerDto.Password);
 
+        // If creating the user was successful like unique email, valid password, etc...
         if (!result.Succeeded)
         {
             // Add all error validation in the response body.
@@ -85,7 +88,7 @@ public class AccountController : BaseApiController
             return ValidationProblem();
         }
 
-        // Create new user into our database.
+        // Give this user the role of Member in our database.
         await _userManager.AddToRoleAsync(user, "Member");
 
         return StatusCode(201);
@@ -107,6 +110,17 @@ public class AccountController : BaseApiController
             Cart = userCart?.MapCartToDto()
         };
     }
+
+    [Authorize]
+    [HttpGet("savedAddress")]
+    public async Task<ActionResult<UserAddress>> GetSavedAddress()
+    {
+        return await _userManager.Users
+            .Where(u => u.UserName == User.Identity.Name)
+            .Select(u => u.Address)
+            .FirstOrDefaultAsync();
+    }
+
     private async Task<Cart> RetrieveCart(string buyerId)
     {
         if (string.IsNullOrEmpty(buyerId))

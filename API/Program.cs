@@ -58,7 +58,7 @@ builder.Services.AddIdentityCore<User>(opt =>
         opt.User.RequireUniqueEmail = true;
     })
     // Add roles
-    .AddRoles<IdentityRole>()
+    .AddRoles<Role>()
     // Add Entity Framework implementation of identity information stores.
     .AddEntityFrameworkStores<StoreContext>();
 // Add authentication configuration.

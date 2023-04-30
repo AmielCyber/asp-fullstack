@@ -1,5 +1,6 @@
 using API.DTOs;
 using API.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions;
 
@@ -23,6 +24,14 @@ public static class CartExtensions
 
             }).ToList()
         };
+    }
+
+    public static IQueryable<Cart> RetrieveCartWithItems(this IQueryable<Cart> query, string buyerId)
+    {
+        return query
+            .Include(c => c.Items)
+            .ThenInclude(c => c.Product)
+            .Where(c => c.BuyerId == buyerId);
     }
 
 }

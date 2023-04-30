@@ -11,3 +11,10 @@ API/Data/Migrations/20230426234114_IdentityAdded.Designer.cs
 API/identifier.sqlite
 API/store.db
 API/store.db
+API/Data/Migrations/20230421032207_InitialCreate.cs
+API/Data/Migrations/20230421032207_InitialCreate.cs
+API/Data/Migrations/20230421032207_InitialCreate.cs
+API/Data/Migrations/20230421032207_InitialCreate.Designer.cs
+API/Data/Migrations/20230424025134_CartEntityAdded.cs
+API/Data/Migrations/20230424025134_CartEntityAdded.Designer.cs
+API/Data/Migrations/20230428180309_OrderEntityAdded.Designer.cs
