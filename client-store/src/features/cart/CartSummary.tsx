@@ -7,14 +7,22 @@ import {
   TableRow,
 } from "@mui/material";
 // My imports.
-import currencyFormat from "../../util/currencyFormat";
 import { useAppSelector } from "../../store/configureStore";
+import currencyFormat from "../../util/currencyFormat";
 
-export default function CartSummary() {
+type Props = {
+  subtotal?: number;
+};
+
+export default function CartSummary(props: Props) {
   const { cart } = useAppSelector((state) => state.cart);
-  const subtotal = cart
-    ? cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    : 0;
+
+  let subtotal = 0;
+  if (props.subtotal === undefined) {
+    subtotal =
+      cart?.items.reduce((sum, item) => sum + item.quantity * item.price, 0) ??
+      0;
+  }
   const deliveryFee = subtotal > 10000 || subtotal === 0 ? 0 : 1500;
 
   return (

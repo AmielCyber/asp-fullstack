@@ -13,6 +13,7 @@ import CartPage from "../features/cart/CartPage";
 import CheckoutPage from "../features/checkout/CheckoutPage";
 import Login from "../features/account/Login";
 import Register from "../features/account/Register";
+import Orders from "../features/orders/Orders";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,10 @@ const router = createBrowserRouter([
     children: [
       {
         element: <RequiredAuth />,
-        children: [{ path: "checkout", element: <CheckoutPage /> }],
+        children: [
+          { path: "checkout", element: <CheckoutPage /> },
+          { path: "orders", element: <Orders /> },
+        ],
       },
       { path: "", element: <HomePage /> },
       { path: "catalog", element: <Catalog /> },

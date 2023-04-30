@@ -16,7 +16,7 @@ import { Add, Delete, Remove } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 // My imports.
 import { useAppDispatch, useAppSelector } from "../../store/configureStore";
-import { addCartItemAsync, removeCartItemAsync, } from "./cartSlice";
+import { addCartItemAsync, removeCartItemAsync } from "./cartSlice";
 import CartSummary from "./CartSummary";
 
 export default function CartPage() {
@@ -61,10 +61,16 @@ export default function CartPage() {
                 </TableCell>
                 <TableCell align="center">
                   <LoadingButton
-                    loading={status === "pendingRemoveItem" + item.productId + "rem"}
+                    loading={
+                      status === "pendingRemoveItem" + item.productId + "rem"
+                    }
                     onClick={() =>
                       dispatch(
-                        removeCartItemAsync({ productId: item.productId, quantity: 1, name: 'rem' })
+                        removeCartItemAsync({
+                          productId: item.productId,
+                          quantity: 1,
+                          name: "rem",
+                        })
                       )
                     }
                     color="error"
@@ -87,13 +93,15 @@ export default function CartPage() {
                 </TableCell>
                 <TableCell align="right">
                   <LoadingButton
-                    loading={status === "pendingRemoveItem" + item.productId + "del" }
+                    loading={
+                      status === "pendingRemoveItem" + item.productId + "del"
+                    }
                     onClick={() =>
                       dispatch(
                         removeCartItemAsync({
                           productId: item.productId,
                           quantity: item.quantity,
-                          name: "del"
+                          name: "del",
                         })
                       )
                     }
