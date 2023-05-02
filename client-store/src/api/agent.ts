@@ -6,14 +6,14 @@ import { PaginatedResponse } from "../models/pagination";
 import router from "../router/Routes";
 import { store } from "../store/configureStore";
 
-axios.defaults.baseURL = "http://localhost:5001/api/";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 // Have cookies.
 axios.defaults.withCredentials = true;
 
 const responseBody = (response: AxiosResponse) => response.data;
 
 // To Do: remove for production.
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
+// const sleep = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 axios.interceptors.request.use((config) => {
   const token = store.getState().account.user?.token;
@@ -26,8 +26,6 @@ axios.interceptors.request.use((config) => {
 // On rejected area
 axios.interceptors.response.use(
   async (response) => {
-    // To Do: remove for production.
-    await sleep();
     const pagination = response.headers["pagination"];
     if (pagination) {
       response.data = new PaginatedResponse(
@@ -108,12 +106,17 @@ const Orders = {
   create: (values: any) => requests.post("orders", values),
 };
 
+const Payments = {
+  createPaymentIntent: () => requests.post("payments", {}),
+};
+
 const agent = {
   Catalog,
   TestErrors,
   Cart,
   Account,
   Orders,
+  Payments,
 };
 
 export default agent;

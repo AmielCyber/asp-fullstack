@@ -6,4 +6,7 @@ export default defineConfig({
   plugins: [react({
     jsxImportSource: "@emotion/react",
   })],
+  build: {
+    outDir: "../API/wwwroot"
+  }
 })
