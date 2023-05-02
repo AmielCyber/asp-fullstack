@@ -48,7 +48,10 @@ builder.Services.AddSwaggerGen(opt =>
 builder.Services.AddDbContext<StoreContext>(opt =>
 {
     // Specify options from our configuration.
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // SQLite
+    // opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Postgres
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
 // Identity Roles.
@@ -100,9 +103,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Set up middleware to serve static content (React)
+// Looks for an html in wwwroot.
+app.UseDefaultFiles();   
+// Tell our app to use static files (React)
+app.UseStaticFiles();
+
+
 // Redirects HTTP to HTTPS
 // app.UseHttpsRedirection();
-
 // Use cors configuration.
 app.UseCors(opt =>
 {
@@ -113,8 +122,14 @@ app.UseCors(opt =>
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Endpoints of our controllers.
 // Where to send requests:
 app.MapControllers();
+
+// Endpoints of our client app
+// Tell our server how to handle paths that it doesnt know of but React does.
+// Our IndexController will handle these paths
+app.MapFallbackToController("Index", "Fallback");
 
 // Get hold of the context service.
 var scope = app.Services.CreateScope();
