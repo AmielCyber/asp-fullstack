@@ -7,6 +7,11 @@ namespace API.Entities
         // May be replaced with an ordered list.
         // Many to One Relationship.
         public List<CartItem> Items { get; set; } = new();
+        // Both properties below will be used for the client to make a payment with stripe directly.
+        // For stripe payment intent id, before the user makes a payment.
+        public string PaymentIntentId { get; set; }
+        // For stripe client secret.
+        public string ClientSecret { get; set; }
 
         public void AddItem(Product product, int quantity)
         {

@@ -83,6 +83,7 @@ public class OrdersController : BaseApiController
             ShippingAddress = orderDto.ShippingAddress,
             SubTotal = subtotal,
             DeliveryFee = deliveryFee,
+            PaymentIntentId = cart.PaymentIntentId,
         };
 
         // Add order and remove cart.
@@ -93,7 +94,7 @@ public class OrdersController : BaseApiController
         if (orderDto.SaveAddress)
         {
             var user = await _storeContext.Users
-                .Include(a =>  a.Address)
+                .Include(a => a.Address)
                 .FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
             var address = new UserAddress
             {
