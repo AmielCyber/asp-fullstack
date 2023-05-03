@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Data;
 using API.Entities;
 using API.Middleware;
+using API.RequestHelpers;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Web API controller for routes.
 builder.Services.AddControllers();
+// Add Mapper service and tell where to find mapping profiles
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 // Adding swagger dependencies for swagger content.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
@@ -82,6 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<ImageService>();
 
 // Build application and store the result in app.
 var app = builder.Build();
