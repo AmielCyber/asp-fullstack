@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
 import { FieldValues } from "react-hook-form";
+import { toast } from "react-toastify";
 // My imports.
 import type { User } from "../../models/user";
 import agent from "../../api/agent";
 import router from "../../router/Routes";
-import { toast } from "react-toastify";
 import { setCart } from "../cart/cartSlice";
 
 interface AccountState {
@@ -69,7 +69,13 @@ export const accountSlice = createSlice({
       router.navigate("/");
     },
     setUser: (state, action) => {
-      state.user = action.payload;
+      const claims = JSON.parse(atob(action.payload.token.split(".")[1]));
+      const roles =
+        claims["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      state.user = {
+        ...action.payload,
+        roles: typeof roles === "string" ? [roles] : roles,
+      };
     },
   },
   extraReducers: (builder) => {
@@ -82,7 +88,15 @@ export const accountSlice = createSlice({
     builder.addMatcher(
       isAnyOf(signInUser.fulfilled, fetchCurrentUser.fulfilled),
       (state, action) => {
-        state.user = action.payload;
+        const claims = JSON.parse(atob(action.payload.token.split(".")[1]));
+        const roles =
+          claims[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ];
+        state.user = {
+          ...action.payload,
+          roles: typeof roles === "string" ? [roles] : roles,
+        };
       }
     );
     builder.addMatcher(isAnyOf(signInUser.rejected), (_, action) => {

@@ -4,6 +4,7 @@ import Root from "../routes/Root";
 import RequiredAuth from "./RequiredAuth";
 import CheckoutWrapper from "../features/checkout/CheckoutWrapper";
 import Orders from "../features/orders/Orders";
+import Inventory from "../features/admin/Inventory";
 import Catalog from "../features/catalog/Catalog";
 import ProductDetails from "../features/catalog/ProductDetails";
 import AboutPage from "../routes/about/AboutPage";
@@ -20,11 +21,17 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       {
+        // Authenticated Routes.
         element: <RequiredAuth />,
         children: [
           { path: "checkout", element: <CheckoutWrapper /> },
           { path: "orders", element: <Orders /> },
         ],
+      },
+      {
+        // Admin Routes.
+        element: <RequiredAuth roles={["Admin"]} />,
+        children: [{ path: "inventory", element: <Inventory /> }],
       },
       { path: "catalog", element: <Catalog /> },
       { path: "catalog/:id", element: <ProductDetails /> },

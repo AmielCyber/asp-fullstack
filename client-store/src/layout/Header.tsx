@@ -52,7 +52,7 @@ export default function Header(props: Props) {
     : 0;
 
   return (
-    <AppBar position="static" >
+    <AppBar position="static">
       <Toolbar
         sx={{
           display: "flex",
@@ -73,12 +73,17 @@ export default function Header(props: Props) {
               {title.toUpperCase()}
             </ListItem>
           ))}
+          {user && user.roles?.includes("Admin") && (
+            <ListItem component={NavLink} to={"/inventory"} sx={navStyles}>
+              INVENTORY
+            </ListItem>
+          )}
         </List>
 
         <Box display="flex" alignItems="center">
           <IconButton
             component={Link}
-            to="/cart"
+            to="/basket"
             size="large"
             edge="start"
             color="inherit"
@@ -88,6 +93,7 @@ export default function Header(props: Props) {
               <ShoppingCart />
             </Badge>
           </IconButton>
+
           {user ? (
             <SignedInMenu />
           ) : (
